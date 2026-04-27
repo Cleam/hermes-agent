@@ -1,0 +1,29 @@
+flowchart TD
+    subgraph 会话开始
+        SS[新会话启动] --> LOAD_MEM[加载记忆\nMemoryManager.prefetch]
+        LOAD_MEM --> READ_FILES[读取记忆文件\nMEMORY.md + USER.md]
+        READ_FILES --> INJECT[注入 memory-context 块\nbuild_memory_context_block]
+    end
+
+    subgraph 对话中
+        TURN[每轮对话] --> AGENT[AIAgent 处理]
+        AGENT --> TOOL_MEM[工具调用\nmemory tool]
+        TOOL_MEM --> READ_OP[读操作\nread_memory]
+        TOOL_MEM --> WRITE_OP[写操作\nwrite_memory]
+        READ_OP --> MEMDB[(~/.hermes/memories/\nMEMORY.md\nUSER.md)]
+        WRITE_OP --> MEMDB
+        AGENT --> NUDGE{记忆提示\nMemory Nudge\n周期性触发}
+        NUDGE --> AGENT_PERSIST[Agent 主动持久化\n重要信息]
+        AGENT_PERSIST --> MEMDB
+    end
+
+    subgraph 会话结束
+        END_SESS[会话结束] --> SYNC[sync_turn\nPlugin Providers]
+        SYNC --> HON[Honcho\n辩证用户建模]
+        SYNC --> MEM0[Mem0\n向量记忆]
+        SYNC --> SUPER[Supermemory\n知识图谱]
+        SYNC --> FTS5[(SQLite FTS5\n会话搜索\nhermes_state.py)]
+    end
+
+    style MEMDB fill:#E8F5E9,stroke:#4CAF50
+    style FTS5 fill:#E3F2FD,stroke:#2196F3

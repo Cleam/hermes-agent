@@ -1,0 +1,44 @@
+graph TB
+    subgraph 本地部署
+        LOCAL["💻 本地模式\nhermes (CLI)\nhermes --tui (TUI)"]
+        PROFILES["👤 多配置文件\nhermes -p profile_name\n~/.hermes/profiles/"]
+    end
+
+    subgraph 消息网关部署
+        GW_CMD["hermes gateway start\n后台服务"]
+        GW_INSTALL["hermes gateway install\n系统服务 (systemd/launchd)"]
+        PLATFORMS["支持平台\nTelegram / Discord / Slack\nWechat / WeCom / DingTalk\nFeishu / QQBot / Matrix\nEmail / SMS / Signal\nWebhook / API Server\n..."]
+        GW_CMD --> PLATFORMS
+        GW_INSTALL --> PLATFORMS
+    end
+
+    subgraph Docker 部署
+        DOCKER["🐳 Docker\ndocker-compose.yml\nDockerfile"]
+        DOCKER_VOL["Volume: ~/.hermes/\n配置 / 记忆 / 技能"]
+        DOCKER --> DOCKER_VOL
+    end
+
+    subgraph 托管平台
+        NIX["❄️ NixOS\nservices.hermes-agent\nHERMES_MANAGED=nix"]
+        BREW["🍺 Homebrew\nHERMES_MANAGED=brew"]
+    end
+
+    subgraph VPS 部署
+        VPS["☁️ VPS ($5/mo)\nhermes gateway start\n作为后台服务运行\nhermes gateway install"]
+    end
+
+    subgraph 配置文件
+        CFG_YAML["~/.hermes/config.yaml\n(非敏感设置)"]
+        CFG_ENV["~/.hermes/.env\n(API 密钥，chmod 600)"]
+        LOG_DIR["~/.hermes/logs/\nagent.log / errors.log\ngateway.log"]
+    end
+
+    LOCAL --> CFG_YAML
+    LOCAL --> CFG_ENV
+    GW_CMD --> CFG_YAML
+    DOCKER --> CFG_YAML
+    VPS --> GW_INSTALL
+
+    style PLATFORMS fill:#E8F5E9,stroke:#4CAF50
+    style DOCKER fill:#E3F2FD,stroke:#2196F3
+    style VPS fill:#FFF3E0,stroke:#FF9800

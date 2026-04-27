@@ -1,0 +1,70 @@
+graph TB
+    subgraph 用户接口层
+        CLI["🖥️ CLI<br/>cli.py / hermes_cli/main.py"]
+        TUI["🎨 TUI<br/>ui-tui/ (Ink/React)"]
+        GW["📡 消息网关<br/>gateway/run.py"]
+    end
+
+    subgraph 核心引擎层
+        AGENT["🧠 AIAgent<br/>run_agent.py"]
+        MT["🔧 工具编排<br/>model_tools.py"]
+        PB["📝 提示构建<br/>agent/prompt_builder.py"]
+        CC["📦 上下文压缩<br/>agent/context_compressor.py"]
+    end
+
+    subgraph 工具层
+        REG["📋 工具注册表<br/>tools/registry.py"]
+        TERM["💻 终端工具<br/>tools/terminal_tool.py"]
+        WEB["🌐 网络工具<br/>tools/web_tools.py"]
+        MCP["🔌 MCP客户端<br/>tools/mcp_tool.py"]
+        DEL["👥 子智能体<br/>tools/delegate_tool.py"]
+        SKILLS["📚 技能工具<br/>tools/skills_tool.py"]
+        MEM["🧩 记忆工具<br/>tools/memory_tool.py"]
+    end
+
+    subgraph 记忆与状态层
+        MM["🗄️ 记忆管理器<br/>agent/memory_manager.py"]
+        MEMDB["📁 MEMORY.md / USER.md<br/>~/.hermes/memories/"]
+        SESSDB["🗃️ 会话数据库<br/>hermes_state.py (SQLite+FTS5)"]
+    end
+
+    subgraph 配置与基础设施层
+        CFG["⚙️ 配置<br/>hermes_cli/config.py"]
+        LOG["📊 日志<br/>hermes_logging.py"]
+        CONST["🏠 路径常量<br/>hermes_constants.py"]
+    end
+
+    subgraph 模型提供商
+        OR["OpenRouter"]
+        OAI["OpenAI"]
+        ANT["Anthropic"]
+        GEM["Google Gemini"]
+        OLL["Ollama (本地)"]
+        MORE["109+ 其他提供商"]
+    end
+
+    CLI --> AGENT
+    TUI --> AGENT
+    GW --> AGENT
+    AGENT --> MT
+    AGENT --> PB
+    AGENT --> CC
+    AGENT --> MM
+    MT --> REG
+    REG --> TERM
+    REG --> WEB
+    REG --> MCP
+    REG --> DEL
+    REG --> SKILLS
+    REG --> MEM
+    MM --> MEMDB
+    AGENT --> SESSDB
+    AGENT --> OR
+    AGENT --> OAI
+    AGENT --> ANT
+    AGENT --> GEM
+    AGENT --> OLL
+    AGENT --> MORE
+    AGENT --> CFG
+    AGENT --> LOG
+    CFG --> CONST

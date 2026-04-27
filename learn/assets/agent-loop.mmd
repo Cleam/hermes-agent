@@ -1,0 +1,27 @@
+flowchart TD
+    START([用户消息输入]) --> BUILD_PROMPT[构建系统提示\nPrompt Builder]
+    BUILD_PROMPT --> BUILD_MSG[组装消息列表\nOpenAI格式]
+    BUILD_MSG --> API_CALL[调用模型 API\nclient.chat.completions.create]
+    
+    API_CALL --> CHECK_TOOL{有工具调用?\ntool_calls?}
+    
+    CHECK_TOOL -- 是 --> EXEC_TOOL[执行工具\nhandle_function_call]
+    EXEC_TOOL --> APPEND_RESULT[追加工具结果\ntool_result_message]
+    APPEND_RESULT --> INC_COUNT[api_call_count++]
+    INC_COUNT --> CHECK_BUDGET{预算检查\napi_call_count < max_iterations\nAND budget.remaining > 0}
+    
+    CHECK_BUDGET -- 继续 --> CHECK_INTERRUPT{中断请求?\n_interrupt_requested}
+    CHECK_INTERRUPT -- 否 --> API_CALL
+    CHECK_INTERRUPT -- 是 --> INTERRUPT([中断响应])
+    
+    CHECK_BUDGET -- 超限 --> CHECK_GRACE{宽限调用?\n_budget_grace_call}
+    CHECK_GRACE -- 是 --> GRACE_CALL[最后一次API调用]
+    GRACE_CALL --> FINAL_RESP([返回最终响应])
+    CHECK_GRACE -- 否 --> FORCE_STOP([强制终止])
+    
+    CHECK_TOOL -- 否 --> FINAL_RESP
+
+    style START fill:#4CAF50,color:#fff
+    style FINAL_RESP fill:#2196F3,color:#fff
+    style INTERRUPT fill:#FF9800,color:#fff
+    style FORCE_STOP fill:#f44336,color:#fff

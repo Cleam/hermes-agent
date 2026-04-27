@@ -1,0 +1,27 @@
+flowchart TD
+    subgraph 技能激活
+        USER[用户输入\n/skill-name 或对话触发] --> SC[SlashCommand 解析\nhermes_cli/commands.py]
+        SC --> LOAD[加载技能文件\nagent/skill_commands.py]
+        LOAD --> FIND[查找技能目录\n~/.hermes/skills/\nskills/ built-in\noptional-skills/]
+        FIND --> READ_FRONT[读取 YAML 前置元数据\nname, description, platforms, config]
+        READ_FRONT --> INJECT_MSG[注入为用户消息\n非系统提示 (保护缓存)]
+        INJECT_MSG --> AGENT[AIAgent 处理\n按技能指令执行]
+    end
+
+    subgraph 技能自动生成
+        COMPLEX[复杂任务完成后] --> AUTO[Agent 自动创建技能\n学习循环]
+        AUTO --> SKILL_FILE[生成 SKILL.md 文件\n~/.hermes/skills/]
+        SKILL_FILE --> REUSE[下次类似任务\n直接复用技能]
+    end
+
+    subgraph 技能来源
+        HUB[agentskills.io\nSkills Hub] --> INSTALL[hermes skills install\nofficial/category/skill]
+        BUILTIN[skills/ 内置技能\ngithub/ devops/ productivity/] --> ACTIVE[默认可用]
+        OPTIONAL[optional-skills/ 可选技能\nblockchain/ autonomous-ai/] --> OPT_INSTALL[显式安装后可用]
+        INSTALL --> SKILL_FILE
+        ACTIVE --> INJECT_MSG
+        OPT_INSTALL --> INJECT_MSG
+    end
+
+    style SKILL_FILE fill:#FFF3E0,stroke:#FF9800
+    style INJECT_MSG fill:#E8EAF6,stroke:#3F51B5

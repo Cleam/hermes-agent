@@ -1,0 +1,19 @@
+sequenceDiagram
+    participant Agent as AIAgent<br/>(run_agent.py)
+    participant MT as handle_function_call<br/>(model_tools.py)
+    participant REG as 工具注册表<br/>(tools/registry.py)
+    participant TOOL as 工具实现<br/>(tools/*.py)
+    participant EXT as 外部服务<br/>(终端/网络/API)
+
+    Agent->>MT: 调用工具\n{name, arguments, task_id}
+    MT->>MT: 检查插件 pre_tool_call 钩子
+    MT->>REG: registry.get(tool_name)
+    REG-->>MT: ToolEntry {handler, check_fn, schema}
+    MT->>MT: check_fn() 验证工具可用性
+    MT->>TOOL: handler(args, task_id=task_id)
+    TOOL->>EXT: 实际执行\n(shell命令/HTTP请求/文件读写)
+    EXT-->>TOOL: 原始结果
+    TOOL-->>MT: JSON字符串结果
+    MT->>MT: 检查插件 post_tool_call 钩子
+    MT-->>Agent: tool_result_message\n{"role":"tool", "content": JSON}
+    Agent->>Agent: 追加到消息列表\n继续对话循环
